@@ -1,135 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Instant Quote Calculator</title>
-<script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instant Quote Calculator | Contractor Lead Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
 
-<div id="banner" class="bg-slate-900 text-white p-3 text-xs text-center flex flex-wrap items-center justify-center gap-2">
-  <span class="bg-amber-400 text-black font-bold px-2 py-0.5 rounded">LIVE DEMO</span>
-  <span>Built for <b id="b-name" class="text-amber-300">Premier Roofing</b></span>
-  <button onclick="document.getElementById('modal').classList.remove('hidden')" class="bg-emerald-500 text-black font-bold px-3 py-1 rounded">
-    Add This to Our Website &rarr;
-  </button>
-</div>
+    <!-- Header Banner -->
+    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 shadow-md">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <h1 id="companyHeading" class="text-xl font-bold text-amber-400">Loading Quote Engine...</h1>
+            <span id="badgeLocation" class="bg-slate-700 text-slate-300 text-xs px-3 py-1 rounded-full font-medium">UK Trade Lead</span>
+        </div>
+    </header>
 
-<main class="max-w-lg mx-auto p-4">
-  <div class="bg-white rounded-2xl shadow-xl border overflow-hidden">
-    <div class="bg-blue-600 text-white p-6">
-      <span id="c-city" class="text-xs font-bold uppercase bg-white/20 px-2.5 py-1 rounded-full">UK Approved Specialist</span>
-      <h1 id="c-name" class="text-2xl font-extrabold mt-2">Premier Roofing Solutions</h1>
-      <p id="c-sub" class="text-sm opacity-90 mt-1">Select your project details below for a 30-second estimate.</p>
-    </div>
+    <!-- Main Interactive Calculator Card -->
+    <main class="max-w-xl mx-auto p-6 my-8 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-extrabold tracking-tight mb-2">Get Your Instant Online Estimate</h2>
+            <p class="text-slate-400 text-sm">Select your project requirements below to see an instant price breakdown.</p>
+        </div>
 
-    <form id="q-form" class="p-6 space-y-5" onsubmit="calcQuote(event)">
-      <div>
-        <label id="q1-t" class="block text-sm font-bold mb-2">1. What service do you require?</label>
-        <div id="q1-box" class="grid grid-cols-3 gap-2"></div>
-      </div>
+        <!-- Calculator Form Options -->
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold mb-1 text-slate-300">Project Type / Scale</label>
+                <select id="projectSize" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:outline-none focus:border-amber-400">
+                    <option value="standard">Standard Repair / Replacement (~£450)</option>
+                    <option value="medium">Medium Installation (~£1,200)</option>
+                    <option value="large">Full Scale Replacement / Installation (~£3,500)</option>
+                </select>
+            </div>
 
-      <div>
-        <label id="q2-t" class="block text-sm font-bold mb-2">2. Property / project size</label>
-        <div id="q2-box" class="grid grid-cols-3 gap-2"></div>
-      </div>
+            <div>
+                <label class="block text-sm font-semibold mb-1 text-slate-300">Urgency</label>
+                <select id="urgency" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:outline-none focus:border-amber-400">
+                    <option value="normal">Standard Schedule</option>
+                    <option value="urgent">Priority / Emergency Callout (+£150)</option>
+                </select>
+            </div>
 
-      <div>
-        <label class="block text-sm font-bold mb-2">3. How soon are you looking to start?</label>
-        <select id="urg" class="w-full border rounded-xl p-3 text-sm bg-slate-50">
-          <option value="1.05">Urgent (Next 7–14 days)</option>
-          <option value="1">Within 1 to 3 months</option>
-          <option value="0.95">Just budgeting / comparing</option>
-        </select>
-      </div>
+            <!-- Dynamic Price Output Box -->
+            <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-5 text-center mt-6">
+                <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Estimated Quote</span>
+                <div id="priceDisplay" class="text-4xl font-black text-amber-400 my-1">£1,200</div>
+                <p class="text-xs text-slate-500">Includes materials, labor, and standard guarantee.</p>
+            </div>
 
-      <div class="space-y-2.5 pt-2 border-t">
-        <input id="u-name" required placeholder="Your Full Name" class="w-full border rounded-xl p-3 text-sm">
-        <input id="u-phone" required type="tel" placeholder="Mobile Number (for SMS estimate)" class="w-full border rounded-xl p-3 text-sm">
-        <input id="u-zip" required placeholder="Property Postcode (e.g. CV1 / NN1)" class="w-full border rounded-xl p-3 text-sm">
-      </div>
+            <!-- Call to Action / Stripe Checkout Button -->
+            <div class="pt-4">
+                <a id="stripeCheckoutBtn" href="https://buy.stripe.com/eVq6oIe9f6UcgZu46pbAs01" target="_blank" class="block w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-center py-4 rounded-xl shadow-lg transition-all duration-200 text-lg">
+                    Book & Secure This Quote Now
+                </a>
+                <p class="text-center text-xs text-slate-500 mt-3">🔒 Instant secure checkout powered by Stripe</p>
+            </div>
+        </div>
+    </main>
 
-      <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow">
-        Calculate My Instant Estimate &rarr;
-      </button>
-    </form>
+    <!-- Footer / B2B SaaS Pitch Bar -->
+    <footer class="bg-slate-950 border-t border-slate-800 py-6 px-6 text-center text-xs text-slate-400">
+        <p class="mb-1">Want an interactive quote calculator like this built directly onto your website?</p>
+        <p class="text-slate-300 font-semibold">Captures homeowner leads 24/7 on autopilot. <a href="mailto:l.hockley17121990@gmail.com" class="text-amber-400 underline hover:text-amber-300">Get yours installed today</a>.</p>
+    </footer>
 
-    <div id="res-box" class="hidden p-6 text-center space-y-4">
-      <p class="text-sm font-bold text-emerald-600 uppercase">Instant Estimate Generated</p>
-      <div class="bg-slate-900 text-white p-5 rounded-2xl">
-        <p class="text-xs text-slate-400">Estimated Guide Price (Labour &amp; Materials)</p>
-        <p id="res-price" class="text-3xl font-extrabold text-emerald-400 mt-1">£3,200 – £4,100</p>
-      </div>
-      <p id="res-msg" class="text-sm text-slate-600"></p>
-      <button onclick="location.reload()" class="text-xs underline text-slate-400">Start Over</button>
-    </div>
-  </div>
-</main>
+    <!-- Frontend Script to Parse URL Parameters & Dynamically Brand the Page -->
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const companyName = urlParams.get('name') || "Premier Trade Services";
+        const city = urlParams.get('city') || "UK";
+        const niche = urlParams.get('niche') || "roofing";
 
-<div id="modal" class="hidden fixed inset-0 bg-black/75 flex items-center justify-center p-4 z-50">
-  <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 relative">
-    <button onclick="document.getElementById('modal').classList.add('hidden')" class="absolute top-3 right-4 text-xl font-bold">&times;</button>
-    <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded">ZERO-CALL SETUP</span>
-    <h3 class="text-xl font-extrabold">Add This to <span id="m-name">Your Website</span></h3>
-    <p class="text-sm text-slate-600">We calibrate your exact pricing, give you a 1-line website embed in 24 hours, and send every homeowner lead straight to your mobile.</p>
-    <div class="bg-slate-50 p-3 rounded-xl border flex justify-between items-center">
-      <span class="text-sm font-bold">Full Setup &amp; Live Lead Alerts</span>
-      <span class="text-lg font-extrabold">£297/mo</span>
-    </div>
-    <a id="claim-link" href="https://buy.stripe.com/dRm3cwd5bfqIaB6cCVbAs00" target="_blank" class="block w-full text-center bg-emerald-500 text-black font-extrabold py-3.5 rounded-xl">
-      Claim &amp; Activate Online Now &rarr;
-    </a>
-  </div>
-</div>
+        // Inject company name and location into the page elements
+        document.getElementById('companyHeading').textContent = companyName;
+        document.getElementById('badgeLocation').textContent = `${city} • ${niche.charAt(0).toUpperCase() + niche.slice(1)}`;
 
-<script>
-const DATA = {
-  roofing: ["1. Roofing service needed?", [["New Roof",4800],["Flat Roof",2100],["Roof Repair",650]], [["Terraced",0.85],["Semi-Detached",1],["Detached",1.45]]],
-  solar: ["1. Solar system needed?", [["Solar Panels",4900],["Solar + Battery",7800],["Battery Only",3200]], [["1-2 Bed Home",0.8],["3 Bed Home",1],["4+ Bed Home",1.35]]],
-  driveways: ["1. Driveway surface?", [["Resin Bound",3600],["Block Paving",4200],["Tarmac",3100]], [["1-2 Cars",0.85],["2-3 Cars",1],["4+ Cars",1.55]]]
-};
-const q = new URLSearchParams(location.search);
-const cName = q.get("name") || "Premier Roofing Solutions";
-const cCity = q.get("city") || "UK Approved Specialist";
-const niche = DATA[(q.get("niche") || "roofing").toLowerCase()] || DATA.roofing;
-let base = niche[1][0][1], mult = niche[2][1][1];
+        // Simple interactive price calculator logic
+        const projectSizeSelect = document.getElementById('projectSize');
+        const urgencySelect = document.getElementById('urgency');
+        const priceDisplay = document.getElementById('priceDisplay');
 
-document.getElementById("b-name").textContent = cName;
-document.getElementById("c-name").textContent = cName;
-document.getElementById("m-name").textContent = cName;
-document.getElementById("c-city").textContent = cCity;
-document.getElementById("q1-t").textContent = niche[0];
+        function calculatePrice() {
+            let base = 1200;
+            if (projectSizeSelect.value === 'standard') base = 450;
+            if (projectSizeSelect.value === 'large') base = 3500;
+            if (urgencySelect.value === 'urgent') base += 150;
+            
+            priceDisplay.textContent = `£${base.toLocaleString()}`;
+        }
 
-function makeBtns(id, list, isB) {
-  const box = document.getElementById(id);
-  list.forEach((item, i) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    const on = (isB && i===0) || (!isB && i===1);
-    b.className = on ? "p-2.5 rounded-xl border-2 border-blue-600 bg-blue-50 text-blue-700 text-xs font-bold" : "p-2.5 rounded-xl border text-xs font-semibold";
-    b.textContent = item[0];
-    b.onclick = () => {
-      [...box.children].forEach(c => c.className = "p-2.5 rounded-xl border text-xs font-semibold");
-      b.className = "p-2.5 rounded-xl border-2 border-blue-600 bg-blue-50 text-blue-700 text-xs font-bold";
-      if (isB) base = item[1]; else mult = item[1];
-    };
-    box.appendChild(b);
-  });
-}
-makeBtns("q1-box", niche[1], true);
-makeBtns("q2-box", niche[2], false);
-
-function calcQuote(e) {
-  e.preventDefault();
-  const u = parseFloat(document.getElementById("urg").value);
-  const lo = Math.round((base * mult * u * 0.9) / 50) * 50;
-  const hi = Math.round((base * mult * u * 1.15) / 50) * 50;
-  document.getElementById("res-price").textContent = "£" + lo.toLocaleString() + " – £" + hi.toLocaleString();
-  document.getElementById("res-msg").textContent = "Thanks " + document.getElementById("u-name").value + "! " + cName + " has logged your estimate for " + document.getElementById("u-zip").value.toUpperCase() + ".";
-  document.getElementById("q-form").classList.add("hidden");
-  document.getElementById("res-box").classList.remove("hidden");
-}
-</script>
+        projectSizeSelect.addEventListener('change', calculatePrice);
+        urgencySelect.addEventListener('change', calculatePrice);
+    </script>
 </body>
 </html>
