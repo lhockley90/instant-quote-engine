@@ -40,4 +40,329 @@ select.field:focus,input.field:focus{outline:none;border-color:#2563eb}
 .est-label{font-size:13px;font-weight:700;color:#1e40af;text-transform:uppercase;letter-spacing:.5px}
 .est-price{font-size:34px;font-weight:800;color:#1e3a8a;margin:4px 0}
 .est-sub{font-size:13px;color:#475569;margin:0}
-#dr-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.5);display
+#dr-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;z-index:20}
+#dr{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:#fff;box-shadow:-8px 0 30px rgba(0,0,0,.18);padding:20px;overflow-y:auto;display:none;z-index:21}
+#dr .top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e5e7eb;padding-bottom:12px;margin-bottom:14px}
+#dr h3{margin:0;font-size:18px}
+#dr label{display:block;font-size:13px;font-weight:700;margin:12px 0 4px;color:#374151}
+#dr input{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:14px}
+#dr .row{display:flex;gap:6px;margin:6px 0;align-items:center}
+#dr .row input.n{width:82px;flex:none}
+#dr .row button{flex:none;border:1px solid #fca5a5;background:#fef2f2;color:#b91c1c;border-radius:6px;padding:7px 10px;font-weight:700}
+#dr .add-btn{width:100%;margin-top:8px;padding:9px;background:#f8fafc;border:1px dashed #94a3b8;border-radius:6px;font-weight:600;font-size:13px}
+#dr .done-btn{width:100%;margin-top:16px;padding:12px;background:#1d4ed8;color:#fff;border:0;border-radius:8px;font-weight:700}
+</style>
+</head>
+<body>
+
+<div id="bar">
+  <div class="left">
+    <span class="badge-demo">Live Demo</span>
+    <span>Built for <strong id="bn">Your Company</strong></span>
+  </div>
+  <div class="actions">
+    <button class="btn-edit" onclick="openDr()">✏️ Edit Services &amp; Prices</button>
+    <button class="btn-buy" onclick="buy()">Add This to Our Website &rarr;</button>
+  </div>
+</div>
+
+<main>
+  <div id="app"></div>
+</main>
+
+<div id="dr-backdrop" onclick="closeDr()"></div>
+<div id="dr"></div>
+
+<script>
+const STRIPE = 'https://buy.stripe.com/eVq6oIe9f6UcgZu46pbAs01';
+
+const SZ_ROOMS = [['1 Room',1],['2-3 Rooms',2.2],['Full House',4.2]];
+const SZ_PROP = [['Terraced / Flat',1],['Semi-Detached',1.35],['Detached / Large',1.85]];
+
+const T = {
+  builder: {
+    l: 'Building & Construction',
+    q: '2. Property / project size',
+    o: [['Small / Single Room',1],['Standard 3-Bed Home',1.4],['Large Detached / Commercial',2.0]],
+    s: [['House Extension',28000,55000],['Loft Conversion',30000,52000],['Garage Conversion',12000,22000],['Structural Knock-Through',2500,6500],['Brickwork & Repointing',900,3200],['Full Refurbishment',22000,58000]]
+  },
+  driveways: {
+    l: 'Driveways & Landscaping',
+    q: '2. Area / driveway size',
+    o: [['1 Car / Small Patio',1],['2 Cars / Medium Garden',1.6],['3+ Cars / Large Area',2.3]],
+    s: [['Resin Bound Driveway',3200,6500],['Block Paving Driveway',3000,6800],['Porcelain / Indian Sandstone Patio',2400,5500],['Tarmac Driveway',2200,4800],['Turfing & Landscaping',1500,4200],['Fencing & Garden Walls',1100,3400]]
+  },
+  plumber: {
+    l: 'Plumbing & Heating',
+    q: '2. Property / heating size',
+    o: [['1 Bathroom (5-7 Rads)',1],['2 Bathrooms (8-11 Rads)',1.45],['3+ Bathrooms (12+ Rads)',2.0]],
+    s: [['New Combi Boiler Install',2100,3400],['Full Bathroom Refurbishment',4500,8500],['Central Heating & Radiators',2800,5200],['Boiler Service / Repair',120,380],['Underfloor Heating',2200,4800],['General Plumbing / Leaks',150,450]]
+  },
+  heating_engineer: {
+    l: 'Heating & Boilers',
+    q: '2. Property / heating size',
+    o: [['1 Bathroom (5-7 Rads)',1],['2 Bathrooms (8-11 Rads)',1.45],['3+ Bathrooms (12+ Rads)',2.0]],
+    s: [['New Boiler Installation',2200,3600],['Air Source Heat Pump',5500,9500],['Powerflush & Radiators',550,1400],['Boiler Servicing & Repair',110,350],['Underfloor Heating',2400,5000],['Smart Thermostat & Controls',220,480]]
+  },
+  electrician: {
+    l: 'Electrical Services',
+    q: '2. Property size',
+    o: [['1-2 Bed Flat / Terraced',1],['3 Bed Semi-Detached',1.35],['4+ Bed Detached / Commercial',1.85]],
+    s: [['Full / Partial Rewire',3200,6200],['Consumer Unit (Fuseboard)',550,950],['EV Charger Installation',850,1350],['EICR Safety Certificate',150,320],['Lighting & Extra Sockets',220,680],['Solar PV & Battery Storage',4800,8500]]
+  },
+  roofer: {
+    l: 'Roofing Services',
+    q: '2. Property / roof size',
+    o: SZ_PROP,
+    s: [['New Pitched Roof',5500,11500],['Flat Roof (GRP / EPDM)',1800,4200],['Roof Leak / Tile Repair',250,850],['Fascias, Soffits & Guttering',1200,2800],['Chimney Repointing / Removal',650,2200],['Velux / Roof Windows',950,2100]]
+  },
+  carpenter: {
+    l: 'Carpentry & Joinery',
+    q: '2. Scope of work',
+    o: [['Single Item / 1 Room',1],['2-4 Items / Multiple Rooms',1.8],['Full Property Package',3.2]],
+    s: [['Internal Doors Hanging',350,950],['Bespoke Fitted Wardrobes',1600,3800],['Kitchen Installation',2500,5500],['Skirting, Architrave & Flooring',600,1800],['Staircase Refurbishment',1400,3500],['Timber Decking & Pergolas',2200,5200]]
+  },
+  plasterer: {
+    l: 'Plastering & Rendering',
+    q: '2. Scope of work',
+    o: SZ_ROOMS,
+    s: [['Room Skimming / Re-skim',400,850],['Artex Ceiling Flatten',350,750],['Plasterboarding / Drylining',600,1400],['External Rendering (Silicone / K-Rend)',2800,6500],['Damp Proofing & Tanking',950,2600],['Patch & Wall Repairs',180,450]]
+  },
+  painter: {
+    l: 'Painting & Decorating',
+    q: '2. Scope of work',
+    o: SZ_ROOMS,
+    s: [['Interior Room Painting',380,800],['Full Interior Redecoration',1800,4200],['Exterior House Painting',1400,3500],['Wallpaper Hanging / Stripping',320,750],['Doors, Skirting & Woodwork',280,680],['Kitchen Cabinet Spraying',950,2200]]
+  },
+  tiler: {
+    l: 'Wall & Floor Tiling',
+    q: '2. Tiling area size',
+    o: [['Small Area (Under 10m²)',1],['Medium Room (10-25m²)',1.75],['Large Floor / Multiple Rooms (25m²+)',2.8]],
+    s: [['Full Bathroom Tiling',1100,2400],['Kitchen Floor Tiling',850,1900],['Kitchen Splashback Tiling',320,680],['Wetroom & Waterproofing',1400,3000],['Large Format / Porcelain Slabs',1300,2800],['Outdoor Patio Paving',1600,3800]]
+  },
+  hvac: {
+    l: 'Air Conditioning & HVAC',
+    q: '2. Rooms / zones to cover',
+    o: [['Single Room',1],['2-3 Rooms (Multi-Split)',2.1],['Full Property / Commercial',3.6]],
+    s: [['Home Wall Split AC Install',1450,2400],['Multi-Room Air Conditioning',2800,5200],['Air Source Heat Pump',5500,9800],['Commercial HVAC Installation',3500,8500],['AC Servicing & Regas',140,320],['Ventilation & Heat Recovery',1200,2900]]
+  },
+  glaziery: {
+    l: 'Windows, Doors & Glazing',
+    q: '2. Number of units / size',
+    o: [['Single Door or 1-2 Windows',1],['3-5 Windows / Medium Job',2.1],['Full House Windows & Doors',4.0]],
+    s: [['uPVC Casement Windows',900,2200],['Composite Front Door',1150,2100],['Aluminium Bi-Fold Doors',3200,6500],['French / Sliding Patio Doors',1600,3400],['Misted Double Glazing Repair',180,480],['Roof Lantern / Conservatory',2800,6800]]
+  }
+};
+
+function resolveTradeKey(raw) {
+  const s = (raw || '').toLowerCase().trim();
+  if (T[s]) return s;
+  if (s.includes('drive') || s.includes('paving') || s.includes('landscap')) return 'driveways';
+  if (s.includes('elec') || s.includes('rewire') || s.includes('ev')) return 'electrician';
+  if (s.includes('heat') || s.includes('boiler') || s.includes('gas')) return 'heating_engineer';
+  if (s.includes('plumb') || s.includes('bath')) return 'plumber';
+  if (s.includes('roof') || s.includes('gutter') || s.includes('fascia')) return 'roofer';
+  if (s.includes('plast') || s.includes('render') || s.includes('skim')) return 'plasterer';
+  if (s.includes('paint') || s.includes('decorat')) return 'painter';
+  if (s.includes('tile') || s.includes('tiling')) return 'tiler';
+  if (s.includes('carp') || s.includes('joiner') || s.includes('kitchen')) return 'carpenter';
+  if (s.includes('hvac') || s.includes('air con') || s.includes('ventilat')) return 'hvac';
+  if (s.includes('glaz') || s.includes('window') || s.includes('door') || s.includes('upvc')) return 'glaziery';
+  if (s.includes('build') || s.includes('exten') || s.includes('loft')) return 'builder';
+  return 'builder';
+}
+
+const params = new URLSearchParams(location.search);
+const isEmbed = params.get('embed') === '1' || window.self !== window.top;
+if (isEmbed) document.getElementById('bar').style.display = 'none';
+
+let state = {
+  name: (params.get('name') || 'Your Company').trim(),
+  city: (params.get('city') || '').trim(),
+  nicheKey: resolveTradeKey(params.get('niche') || 'builder'),
+  mult: parseFloat(params.get('m')) || 1,
+  selService: 0,
+  selSize: 1,
+   urgency: 'Urgent (Next 7-14 days)',
+  services: []
+};
+
+if (!state.city || state.city.toLowerCase() === 'your area' || state.city.toLowerCase() === 'uk') {
+  state.city = 'Local Area Estimate';
+}
+
+const baseTrade = T[state.nicheKey];
+const rawServicesParam = params.get('services');
+if (rawServicesParam) {
+  const customNames = rawServicesParam.split(',').map(x => x.trim()).filter(Boolean).slice(0, 8);
+  if (customNames.length >= 2) {
+    state.services = customNames.map((nm, idx) => {
+      const match = baseTrade.s.find(b => b[0].toLowerCase().includes(nm.toLowerCase()) || nm.toLowerCase().includes(b[0].toLowerCase()));
+      if (match) return [nm, match[1], match[2]];
+      const fallback = baseTrade.s[idx % baseTrade.s.length];
+      return [nm, fallback[1], fallback[2]];
+    });
+  }
+}
+if (!state.services.length) {
+  state.services = baseTrade.s.map(x => [...x]);
+}
+
+function fmt(n) {
+  return '£' + Math.round(n / 25) * 25;
+}
+
+function render() {
+  document.getElementById('bn').textContent = state.name;
+  const trade = T[state.nicheKey];
+  if (state.selService >= state.services.length) state.selService = 0;
+
+  const svButtons = state.services.map((s, i) =>
+    `<button type="button" class="opt ${i === state.selService ? 'on' : ''}" onclick="setService(${i})">${esc(s[0])}</button>`
+  ).join('');
+
+  const szButtons = trade.o.map((o, i) =>
+    `<button type="button" class="opt ${i === state.selSize ? 'on' : ''}" onclick="setSize(${i})">${esc(o[0])}</button>`
+  ).join('');
+
+  const curS = state.services[state.selService] || ['Service', 500, 1200];
+  const curO = trade.o[state.selSize] || ['Standard', 1];
+  const low = fmt(curS[1] * curO[1] * state.mult);
+  const high = fmt(curS[2] * curO[1] * state.mult);
+
+  document.getElementById('app').innerHTML = `
+    <div class="card">
+      <div class="card-head">
+        <span class="pill">${esc(state.city)}</span>
+        <h1>${esc(state.name)}</h1>
+        <p>Select your project details below for a 30-second instant estimate.</p>
+      </div>
+      <div class="card-body">
+        <div class="step-label">1. What ${esc(trade.l.toLowerCase())} service do you need?</div>
+        <div class="grid">${svButtons}</div>
+
+        <div class="step-label">${esc(trade.q)}</div>
+        <div class="grid">${szButtons}</div>
+
+        <div class="step-label">3. How soon are you looking to start?</div>
+        <select class="field" onchange="state.urgency=this.value">
+          <option>Urgent (Next 7–14 days)</option>
+          <option>Within 1 month</option>
+          <option>Within 2–3 months</option>
+          <option>Just budgeting / comparing quotes</option>
+        </select>
+
+        <div class="inputs">
+          <input class="field" id="lead-name" placeholder="Your Full Name">
+          <input class="field" id="lead-phone" type="tel" placeholder="Mobile Number (for instant SMS estimate)">
+          <input class="field" id="lead-pc" placeholder="Property Postcode">
+          <button type="button" class="cta" onclick="showEstimate()">Calculate My Instant Estimate &rarr;</button>
+        </div>
+
+        <div class="result-box" id="res-box">
+          <div class="est-label">Estimated Project Guide Price</div>
+          <div class="est-price">${low} – ${high}</div>
+          <p class="est-sub">Estimate for <strong>${esc(curS[0])}</strong> (${esc(curO[0])}) with <strong>${esc(state.name)}</strong>. Subject to a free site survey.</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+window.setService = function(i) {
+  state.selService = i;
+  render();
+};
+
+window.setSize = function(i) {
+  state.selSize = i;
+  render();
+};
+
+window.showEstimate = function() {
+  const box = document.getElementById('res-box');
+  if (box) {
+    box.classList.add('show');
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+};
+
+window.openDr = function() {
+  const rows = state.services.map((s, i) => `
+    <div class="row">
+      <input value="${esc(s[0])}" oninput="state.services[${i}][0]=this.value">
+      <input class="n" type="number" value="${s[1]}" oninput="state.services[${i}][1]=Number(this.value)||0" title="Min £">
+      <input class="n" type="number" value="${s[2]}" oninput="state.services[${i}][2]=Number(this.value)||0" title="Max £">
+      <button type="button" onclick="removeSvc(${i})">&times;</button>
+    </div>
+  `).join('');
+
+  const tradeOpts = Object.keys(T).map(k =>
+    `<option value="${k}" ${k === state.nicheKey ? 'selected' : ''}>${esc(T[k].l)}</option>`
+  ).join('');
+
+  document.getElementById('dr').innerHTML = `
+    <div class="top">
+      <h3>Customise Your Calculator</h3>
+      <button type="button" onclick="closeDr()" style="border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:4px 10px">Close</button>
+    </div>
+    <label>Company Name</label>
+    <input value="${esc(state.name)}" oninput="state.name=this.value;render()">
+
+    <label>City / Coverage Badge</label>
+    <input value="${esc(state.city)}" oninput="state.city=this.value;render()">
+
+    <label>Trade Category</label>
+    <select class="field" style="margin-bottom:4px" onchange="changeTrade(this.value)">${tradeOpts}</select>
+
+    <label>Your Services &amp; Guide Prices (Min £ / Max £)</label>
+    <div>${rows}</div>
+    <button type="button" class="add-btn" onclick="addSvc()">+ Add Another Service</button>
+    <button type="button" class="done-btn" onclick="render();closeDr()">Save &amp; Preview Live</button>
+  `;
+  document.getElementById('dr-backdrop').style.display = 'block';
+  document.getElementById('dr').style.display = 'block';
+};
+
+window.closeDr = function() {
+  document.getElementById('dr-backdrop').style.display = 'none';
+  document.getElementById('dr').style.display = 'none';
+  render();
+};
+
+window.changeTrade = function(k) {
+  state.nicheKey = k;
+  state.services = T[k].s.map(x => [...x]);
+  state.selService = 0;
+  openDr();
+  render();
+};
+
+window.removeSvc = function(i) {
+  if (state.services.length <= 1) return;
+  state.services.splice(i, 1);
+  openDr();
+  render();
+};
+
+window.addSvc = function() {
+  state.services.push(['New Service', 500, 1500]);
+  openDr();
+  render();
+};
+
+window.buy = function() {
+  const svcNames = state.services.map(s => s[0]).join(',');
+  const payload = encodeURIComponent(`${state.name}|${state.city}|${state.nicheKey}`).slice(0, 190);
+  const url = `${STRIPE}?client_reference_id=${payload}`;
+  window.location.href = url;
+};
+
+render();
+</script>
+</body>
+</html>
