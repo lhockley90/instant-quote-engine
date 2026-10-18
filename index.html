@@ -1,108 +1,447 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instant Quote Calculator | Contractor Lead Engine</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Instant Quote Calculator</title>
+<style>
+:root{--accent:#f5b83d;--bg:#0b1220;--panel:#172033;--panel2:#0f1827;--line:#28344a;--text:#eef2f7;--muted:#9aa7bb;--ink:#0b1220}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
+body{min-height:100vh}
+[hidden]{display:none!important}
+button,select,input,textarea{font:inherit;color:inherit}
+
+.demobar{position:sticky;top:0;z-index:20;display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 16px;background:linear-gradient(90deg,#1b2740,#14203a);border-bottom:1px solid var(--line)}
+.demotext{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:600;letter-spacing:.02em;min-width:0}
+.demotext span.t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{width:9px;height:9px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.18);flex:none}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;background:var(--panel);border-bottom:1px solid var(--line)}
+.brand{font-size:24px;font-weight:800;color:var(--accent);line-height:1.1;min-width:0;overflow-wrap:anywhere}
+.pill{flex:none;max-width:55%;font-size:14px;color:#cbd5e1;background:#26324a;border-radius:999px;padding:8px 14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.wrap{max-width:640px;margin:0 auto;padding:24px 16px 40px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:24px 20px}
+.emoji{font-size:34px;line-height:1;margin-bottom:10px;text-align:center}
+h1{margin:0 0 8px;font-size:28px;line-height:1.15;text-align:center;letter-spacing:-.01em}
+.sub{margin:0 0 22px;text-align:center;color:var(--muted);line-height:1.5;font-size:16px}
+.lab{display:block;margin:18px 0 8px;font-weight:700;font-size:15px}
+select{width:100%;padding:16px;border-radius:14px;border:1px solid var(--line);background:var(--panel2);font-size:17px;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#9aa7bb 50%),linear-gradient(135deg,#9aa7bb 50%,transparent 50%);background-position:calc(100% - 22px) 50%,calc(100% - 16px) 50%;background-size:6px 6px;background-repeat:no-repeat}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.seg button{padding:12px 8px;border-radius:14px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-size:14px;line-height:1.25;min-height:56px}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px var(--accent);font-weight:700}
+
+.result{margin-top:22px;padding:22px 16px;border-radius:18px;border:1px solid var(--line);background:var(--panel2);text-align:center}
+.kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.price{font-size:40px;line-height:1.1;margin:10px 0 6px;font-weight:800;color:var(--accent);letter-spacing:-.02em}
+.for{font-size:14px;color:var(--muted);margin-bottom:14px}
+.rows{border-top:1px dashed var(--line);padding-top:12px;text-align:left;font-size:14px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;color:#cbd5e1}
+.row b{color:var(--text);font-weight:600;text-align:right}
+.incl{list-style:none;margin:12px 0 0;padding:12px 0 0;border-top:1px dashed var(--line);text-align:left;font-size:14px;color:var(--muted)}
+.incl li{padding:3px 0 3px 22px;position:relative}
+.incl li:before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:800}
+
+.btn{display:block;width:100%;margin-top:20px;padding:18px 16px;border:0;border-radius:16px;background:var(--accent);color:var(--ink);font-weight:800;font-size:18px;cursor:pointer;text-align:center;text-decoration:none}
+.btn:active{transform:translateY(1px)}
+.btn-sm{width:auto;margin:0;padding:9px 14px;font-size:13px;border-radius:12px;flex:none}
+.fine{margin:12px 0 0;text-align:center;color:var(--muted);font-size:13px;line-height:1.5}
+
+.pitch{margin-top:26px;padding:24px 20px;border-radius:22px;border:1px dashed var(--accent);background:rgba(255,255,255,.02);text-align:center}
+.pitch h2{margin:0 0 8px;font-size:21px}
+.pitch p{margin:0;color:var(--muted);line-height:1.55;font-size:15px}
+
+.form label{display:block;margin:12px 0 6px;font-size:14px;font-weight:600}
+.form input,.form textarea{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:16px}
+.form textarea{min-height:80px;resize:vertical}
+.msg{margin-top:12px;text-align:center;font-size:14px}
+
+.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(3,7,15,.72);padding:0}
+.sheet{width:100%;max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:24px 24px 0 0;padding:26px 20px calc(26px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto;position:relative}
+@media(min-width:640px){.modal{align-items:center;padding:20px}.sheet{border-radius:24px}}
+.x{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-size:20px;line-height:1}
+.sheet h3{margin:0 40px 8px 0;font-size:23px;line-height:1.2}
+.sheet p{color:var(--muted);line-height:1.55;margin:0 0 14px}
+.sheet ul{list-style:none;padding:0;margin:0 0 16px}
+.sheet li{padding:7px 0 7px 26px;position:relative;line-height:1.4}
+.sheet li:before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:800}
+.bigprice{font-size:34px;font-weight:800;color:var(--accent)}
+.bigprice small{font-size:15px;color:var(--muted);font-weight:600}
+.secure{margin:10px 0 0;text-align:center;font-size:12px;color:var(--muted)}
+@media(max-width:420px){h1{font-size:25px}.price{font-size:36px}.brand{font-size:21px}}
+</style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
+<body>
 
-    <!-- Header Banner -->
-    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 shadow-md">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 id="companyHeading" class="text-xl font-bold text-amber-400">Loading Quote Engine...</h1>
-            <span id="badgeLocation" class="bg-slate-700 text-slate-300 text-xs px-3 py-1 rounded-full font-medium">Local Trade Lead</span>
-        </div>
-    </header>
+<div class="demobar" id="demoBar" hidden>
+  <div class="demotext"><span class="dot"></span><span class="t" id="demoLabel"></span></div>
+  <button class="btn btn-sm" id="demoAdd" type="button">Add to my website →</button>
+</div>
 
-    <!-- Main Interactive Calculator Card -->
-    <main class="max-w-xl mx-auto p-6 my-8 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full">
-        <div class="text-center mb-6">
-            <h2 class="text-2xl font-extrabold tracking-tight mb-2">Get Your Instant Online Estimate</h2>
-            <p class="text-slate-400 text-sm">Select your project requirements below to see an instant price breakdown.</p>
-        </div>
+<header class="top">
+  <div class="brand" id="brand">Your Company</div>
+  <div class="pill" id="pill"></div>
+</header>
 
-        <!-- Calculator Form Options -->
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-semibold mb-1 text-slate-300">Project Type / Scale</label>
-                <select id="projectSize" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:outline-none focus:border-amber-400">
-                    <option value="standard">Standard Repair / Replacement (~£450)</option>
-                    <option value="medium" selected>Medium Installation (~£1,200)</option>
-                    <option value="large">Full Scale Replacement / Installation (~£3,500)</option>
-                </select>
-            </div>
+<main class="wrap">
+  <section class="card" id="calc">
+    <div class="emoji" id="emoji" aria-hidden="true"></div>
+    <h1 id="headline">Get Your Instant Estimate</h1>
+    <p class="sub" id="sub"></p>
 
-            <div>
-                <label class="block text-sm font-semibold mb-1 text-slate-300">Urgency</label>
-                <select id="urgency" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:outline-none focus:border-amber-400">
-                    <option value="normal">Standard Schedule</option>
-                    <option value="urgent">Priority / Emergency Callout (+£150)</option>
-                </select>
-            </div>
+    <label class="lab" for="service">What do you need?</label>
+    <select id="service"></select>
 
-            <!-- Dynamic Price Output Box -->
-            <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-5 text-center mt-6">
-                <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Estimated Quote</span>
-                <div id="priceDisplay" class="text-4xl font-black text-amber-400 my-1">£1,200</div>
-                <p class="text-xs text-slate-500">Includes materials, labor, and standard guarantee.</p>
-            </div>
+    <div class="lab" id="sizeTitle">Size</div>
+    <div class="seg" id="sizeSeg"></div>
 
-            <!-- Call to Action / Stripe Checkout Button -->
-            <div class="pt-4">
-                <a id="stripeCheckoutBtn" href="https://buy.stripe.com/eVq6oIe9f6UcgZu46pbAs01" target="_blank" class="block w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-center py-4 rounded-xl shadow-lg transition-all duration-200 text-lg">
-                    Book & Secure This Quote Now
-                </a>
-                <p class="text-center text-xs text-slate-500 mt-3">🔒 Instant secure checkout powered by Stripe</p>
-            </div>
-        </div>
-    </main>
+    <div class="lab">When do you need it?</div>
+    <div class="seg" id="urgSeg"></div>
 
-    <!-- Footer / B2B SaaS Pitch Bar -->
-    <footer class="bg-slate-950 border-t border-slate-800 py-6 px-6 text-center text-xs text-slate-400">
-        <p class="mb-1">Want an interactive quote calculator like this built directly onto your website?</p>
-        <p class="text-slate-300 font-semibold">Captures homeowner leads 24/7 on autopilot. <a href="mailto:l.hockley17121990@gmail.com" class="text-amber-400 underline hover:text-amber-300">Get yours installed today</a>.</p>
-    </footer>
+    <div class="result" aria-live="polite">
+      <div class="kicker">Estimated guide price</div>
+      <div class="price" id="price"></div>
+      <div class="for" id="priceFor"></div>
+      <div class="rows" id="rows"></div>
+      <ul class="incl" id="incl"></ul>
+    </div>
 
-    <!-- Frontend Script to Parse URL Parameters & Dynamically Brand the Page (UK + USA Support) -->
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const companyName = urlParams.get('name') || "Premier Trade Services";
-        const city = urlParams.get('city') || "UK";
-        const niche = urlParams.get('niche') || "building";
-        const country = (urlParams.get('country') || "UK").toUpperCase();
+    <button class="btn" id="cta" type="button">Request this quote →</button>
+    <p class="fine" id="fine"></p>
+  </section>
 
-        // Detect currency symbol and multiplier for US vs UK
-        const symbol = country === "US" ? "$" : "£";
-        const rate = country === "US" ? 1.5 : 1;
+  <section class="card form" id="leadCard" hidden style="margin-top:18px">
+    <h2 style="margin:0 0 4px;font-size:21px">Send your details</h2>
+    <p class="sub" style="margin:0 0 6px;text-align:left" id="leadSub"></p>
+    <form id="leadForm" novalidate>
+      <label for="lName">Your name</label><input id="lName" autocomplete="name" required>
+      <label for="lPhone">Phone</label><input id="lPhone" type="tel" autocomplete="tel" required>
+      <label for="lEmail">Email</label><input id="lEmail" type="email" autocomplete="email">
+      <label for="lPost" id="lPostLab">Postcode</label><input id="lPost" autocomplete="postal-code">
+      <label for="lNotes">Anything else we should know?</label><textarea id="lNotes"></textarea>
+      <button class="btn" type="submit" id="lSubmit">Send my request</button>
+      <div class="msg" id="lMsg"></div>
+    </form>
+  </section>
 
-        // Inject company name and location into the page elements
-        document.getElementById('companyHeading').textContent = companyName;
-        document.getElementById('badgeLocation').textContent = `${city} • ${niche.charAt(0).toUpperCase() + niche.slice(1)}`;
+  <section class="pitch" id="pitch" hidden>
+    <h2 id="pitchH"></h2>
+    <p id="pitchP"></p>
+    <button class="btn" id="pitchBtn" type="button">Add this to my website →</button>
+  </section>
+</main>
 
-        const projectSizeSelect = document.getElementById('projectSize');
-        const urgencySelect = document.getElementById('urgency');
-        const priceDisplay = document.getElementById('priceDisplay');
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="sheet">
+    <button class="x" id="mClose" type="button" aria-label="Close">×</button>
+    <h3 id="mTitle"></h3>
+    <p id="mLead"></p>
+    <ul id="mList"></ul>
+    <div class="bigprice" id="mPrice"></div>
+    <a class="btn" id="mBuy" href="#" rel="noopener">Claim &amp; Activate Online Now →</a>
+    <div class="secure">🔒 Secure checkout powered by Stripe</div>
+  </div>
+</div>
 
-        // Update dropdown labels dynamically to match £ or $
-        projectSizeSelect.options[0].text = `Standard Repair / Replacement (~${symbol}${Math.round(450 * rate).toLocaleString()})`;
-        projectSizeSelect.options[1].text = `Medium Installation (~${symbol}${Math.round(1200 * rate).toLocaleString()})`;
-        projectSizeSelect.options[2].text = `Full Scale Replacement / Installation (~${symbol}${Math.round(3500 * rate).toLocaleString()})`;
-        urgencySelect.options[1].text = `Priority / Emergency Callout (+${symbol}${Math.round(150 * rate)})`;
+<noscript><p style="padding:24px;text-align:center">Please enable JavaScript to use the quote calculator.</p></noscript>
 
-        function calculatePrice() {
-            let base = 1200 * rate;
-            if (projectSizeSelect.value === 'standard') base = 450 * rate;
-            if (projectSizeSelect.value === 'large') base = 3500 * rate;
-            if (urgencySelect.value === 'urgent') base += (150 * rate);
-            
-            priceDisplay.textContent = `${symbol}${Math.round(base).toLocaleString()}`;
-        }
+<script>
+(function () {
+  'use strict';
 
-        calculatePrice();
-        projectSizeSelect.addEventListener('change', calculatePrice);
-        urgencySelect.addEventListener('change', calculatePrice);
-    </script>
+  /* ---------- Settings you may want to change ---------- */
+  var STRIPE_LINK = 'https://buy.stripe.com/eVq6oIe9f6UcgZu46pbAs01';
+  var SETUP_PRICE_TEXT = '£297/mo';       // what the Stripe link charges
+  var SETUP_PRICE_USD  = '≈ $390/mo';     // shown to US contractors only
+  var LEAD_WEBHOOK = '';                  // optional: n8n webhook URL that receives homeowner requests (embed mode)
+  var USD_RATE = 1.45;                    // US prices = UK base price x this
+
+  /* ---------- Trades: same service ORDER as the Stripe decoder in n8n ---------- */
+  var NICHES = {
+    builder: { label: 'Building & Extensions', emoji: '🏗️', accent: '#fb923c', headline: 'Get Your Instant Building Estimate',
+      sub: 'Planning an extension, conversion or renovation? Pick the work below for a guide price.',
+      sizeTitle: 'Project size', sizes: ['Small (1 room)', 'Medium (2–3 rooms)', 'Large (whole house)'], callout: 0,
+      includes: ['Labour and materials', 'Waste removal', 'Building Regs paperwork where needed'],
+      services: [['House Extension', 18000], ['Loft Conversion', 32000], ['Garage Conversion', 14000], ['Brickwork & Repairs', 1500], ['Structural Alterations', 3500], ['Full Renovation', 45000]] },
+    driveways: { label: 'Driveways & Landscaping', emoji: '🛣️', accent: '#34d399', headline: 'Get Your Instant Driveway Estimate',
+      sub: 'Resin, block paving, tarmac and more. See a guide price in seconds.',
+      sizeTitle: 'Surface area', sizes: ['Small (1 car)', 'Standard (2 cars)', 'Large (3+ cars)'], callout: 0,
+      includes: ['Ground preparation and sub-base', 'Materials and laying', 'Waste removal'],
+      services: [['Resin Driveways', 4500], ['Block Paving', 6000], ['Tarmac Driveway', 3500], ['Patio & Landscaping', 4500], ['Dropped Kerb', 1800], ['Walls & Fencing', 1600]] },
+    plumber: { label: 'Plumbing', emoji: '🚿', accent: '#38bdf8', headline: 'Get Your Instant Plumbing Quote',
+      sub: 'From leaks to full bathrooms. Pick the job for a guide price.',
+      sizeTitle: 'Scale of job', sizes: ['Small fix', 'Standard job', 'Large / multi-room'], callout: 95,
+      includes: ['Parts and fittings', 'Labour', 'Making good afterwards'],
+      services: [['Boiler Installation', 2800], ['Bathroom Fitting', 4500], ['Leak & Pipe Repairs', 280], ['Power Flush', 450], ['Hot Water Cylinder', 1500], ['Radiator Replacement', 350]] },
+    heatingengineer: { label: 'Heating Engineers', emoji: '🔥', accent: '#fb7185', headline: 'Get Your Instant Heating Quote',
+      sub: 'Boilers, central heating and controls. Get a guide price now.',
+      sizeTitle: 'Property size', sizes: ['1–2 bedrooms', '3 bedrooms', '4+ bedrooms'], callout: 95,
+      includes: ['Equipment and parts', 'Installation and commissioning', 'Removal of the old system'],
+      services: [['Boiler Installation', 2800], ['Boiler Servicing', 90], ['Central Heating', 5500], ['Underfloor Heating', 4500], ['Power Flush', 450], ['Smart Heating Controls', 350]] },
+    electrician: { label: 'Electrical', emoji: '⚡', accent: '#facc15', headline: 'Get Your Instant Electrical Quote',
+      sub: 'Rewires, EV chargers, testing and more. See a guide price in 30 seconds.',
+      sizeTitle: 'Property size', sizes: ['1–2 bedrooms', '3 bedrooms', '4+ bedrooms'], callout: 95,
+      includes: ['Materials and fittings', 'Testing and certification', 'Making good afterwards'],
+      services: [['Full Rewire', 4500], ['Consumer Unit Upgrade', 650], ['EV Charger Installation', 900], ['EICR Testing', 180], ['Lighting & Sockets', 450], ['Outdoor Lighting', 600]] },
+    roofer: { label: 'Roofing', emoji: '🏠', accent: '#f59e0b', headline: 'Get Your Instant Roofing Estimate',
+      sub: 'Repairs, re-roofs and roofline. Pick the work for a guide price.',
+      sizeTitle: 'Roof size', sizes: ['Small (porch / one slope)', 'Typical house', 'Large / detached'], callout: 95,
+      includes: ['Materials and labour', 'Scaffolding or access', 'Waste removal'],
+      services: [['New Roof', 7500], ['Flat Roofing', 3200], ['Roof Repairs', 450], ['Fascias & Soffits', 2200], ['Guttering', 800], ['Chimney Repairs', 650]] },
+    carpenter: { label: 'Carpentry & Joinery', emoji: '🪚', accent: '#d6a35c', headline: 'Get Your Instant Carpentry Quote',
+      sub: 'Fitted furniture, kitchens, stairs and decking. See a guide price.',
+      sizeTitle: 'Scale of work', sizes: ['One room / item', 'A few rooms', 'Whole property'], callout: 0,
+      includes: ['Materials and fixings', 'Fitting', 'Finishing'],
+      services: [['Fitted Wardrobes', 2200], ['Kitchen Fitting', 2800], ['Doors & Skirting', 1100], ['Staircase Renovation', 2600], ['Decking & Pergolas', 2800], ['Bespoke Shelving', 900]] },
+    plasterer: { label: 'Plastering', emoji: '🪣', accent: '#a78bfa', headline: 'Get Your Instant Plastering Quote',
+      sub: 'Skimming, re-plastering and rendering. Get a guide price now.',
+      sizeTitle: 'Area', sizes: ['1 room', '2–3 rooms', 'Whole house'], callout: 0,
+      includes: ['Materials', 'Labour', 'Dust sheets and clean-up'],
+      services: [['Skimming', 450], ['Full Re-plaster', 1800], ['Plasterboarding', 1200], ['External Rendering', 4500], ['Coving & Cornice', 650], ['Artex Removal', 850]] },
+    painter: { label: 'Painting & Decorating', emoji: '🎨', accent: '#f472b6', headline: 'Get Your Instant Decorating Quote',
+      sub: 'Interior, exterior and woodwork. See a guide price in seconds.',
+      sizeTitle: 'Area', sizes: ['1 room', '2–3 rooms', 'Whole house'], callout: 0,
+      includes: ['Preparation', 'Paint and materials', 'Clean-up'],
+      services: [['Interior Painting', 1800], ['Exterior Painting', 2800], ['Wallpapering', 550], ['Woodwork & Doors', 650], ['Kitchen Respray', 1800], ['Fence & Shed Painting', 450]] },
+    tiler: { label: 'Tiling', emoji: '🧩', accent: '#2dd4bf', headline: 'Get Your Instant Tiling Quote',
+      sub: 'Bathrooms, kitchens, floors and wet rooms. Get a guide price.',
+      sizeTitle: 'Area', sizes: ['Under 5 m²', '5–15 m²', '15 m² +'], callout: 0,
+      includes: ['Adhesive and grout', 'Surface preparation', 'Tiling labour'],
+      services: [['Bathroom Tiling', 1100], ['Kitchen Splashback', 450], ['Floor Tiling', 1200], ['Wet Room Tanking', 2200], ['Patio Tiling', 1800], ['Feature Wall Tiling', 650]] },
+    hvac: { label: 'Air Con & HVAC', emoji: '❄️', accent: '#60a5fa', headline: 'Get Your Instant HVAC Quote',
+      sub: 'Air conditioning, heat pumps and ventilation. See a guide price now.',
+      sizeTitle: 'System size', sizes: ['Small (1 zone)', 'Home (2–3 zones)', 'Large / commercial'], callout: 95,
+      includes: ['Equipment', 'Installation and commissioning', 'Manufacturer warranty'],
+      services: [['Air Conditioning', 2800], ['Heat Pumps', 9500], ['Ventilation & Extraction', 1200], ['MVHR Systems', 5500], ['AC Servicing', 180], ['Commercial Maintenance', 650]] },
+    glaziery: { label: 'Windows & Doors', emoji: '🪟', accent: '#22d3ee', headline: 'Get Your Instant Windows & Doors Quote',
+      sub: 'uPVC, bi-folds, composite doors and repairs. Get a guide price.',
+      sizeTitle: 'Number of units', sizes: ['1–3 units', '4–8 units', '9+ units'], callout: 95,
+      includes: ['Supply and fit', 'Removal of old units', 'Making good'],
+      services: [['uPVC Windows', 3800], ['Bi-Fold Doors', 4800], ['Composite Doors', 1900], ['Misted Unit Repairs', 250], ['Roof Windows', 1500], ['Sash Window Restoration', 2200]] }
+  };
+  var SIZE_MULT = [0.7, 1, 1.6];
+  var URGENCY = [
+    { label: 'Flexible', mult: 1, callout: false },
+    { label: 'Within 7 days', mult: 1.12, callout: false },
+    { label: 'Emergency', mult: 1.3, callout: true }
+  ];
+
+  /* ---------- Local price levels (1 = national average) ---------- */
+  var UK_CITY = { 'london': 1.3, 'croydon': 1.25, 'bromley': 1.25, 'harrow': 1.25, 'enfield': 1.25, 'romford': 1.2, 'watford': 1.2, 'potters bar': 1.2, 'st albans': 1.2,
+    'brighton': 1.15, 'oxford': 1.15, 'cambridge': 1.15, 'guildford': 1.15, 'reading': 1.12, 'winchester': 1.12, 'bath': 1.12, 'slough': 1.12, 'crawley': 1.1, 'canterbury': 1.08, 'chelmsford': 1.08,
+    'luton': 1.05, 'maidstone': 1.05, 'southend-on-sea': 1.05, 'worthing': 1.05, 'basingstoke': 1.05, 'bristol': 1.05, 'edinburgh': 1.05, 'milton keynes': 1.03, 'southampton': 1.03, 'bournemouth': 1.03,
+    'eastbourne': 1, 'exeter': 1, 'swindon': 1, 'aberdeen': 1, 'colchester': 1, 'birmingham': 1, 'manchester': 1, 'chester': 0.98, 'ipswich': 0.98, 'torquay': 0.98, 'truro': 0.98, 'taunton': 0.98,
+    'cardiff': 0.97, 'coventry': 0.97, 'worcester': 0.97, 'gloucester': 0.97, 'leeds': 0.97, 'york': 0.97, 'norwich': 0.97, 'peterborough': 0.97, 'northampton': 0.97, 'glasgow': 0.96, 'nottingham': 0.96,
+    'leicester': 0.96, 'liverpool': 0.95, 'wolverhampton': 0.95, 'plymouth': 0.95, 'newport': 0.95, 'shrewsbury': 0.95, 'inverness': 0.95, 'stirling': 0.95, 'derby': 0.94, 'sheffield': 0.93, 'newcastle': 0.93,
+    'dundee': 0.93, 'belfast': 0.93, 'lancaster': 0.93, 'lincoln': 0.93, 'swansea': 0.92, 'huddersfield': 0.92, 'preston': 0.92, 'sunderland': 0.9, 'middlesbrough': 0.9, 'hull': 0.9, 'doncaster': 0.9,
+    'wigan': 0.9, 'carlisle': 0.9, 'stoke-on-trent': 0.9 };
+  var US_CITY = { 'new york': 1.35, 'newark': 1.2, 'san francisco': 1.4, 'oakland': 1.3, 'san jose': 1.4, 'los angeles': 1.2, 'orange county': 1.2, 'san diego': 1.15, 'riverside': 1, 'sacramento': 1.05,
+    'fresno': 0.95, 'seattle': 1.25, 'portland': 1.1, 'boise': 0.95, 'spokane': 0.95, 'las vegas': 1, 'phoenix': 1, 'tucson': 0.9, 'denver': 1.1, 'colorado springs': 1, 'salt lake city': 1,
+    'dallas': 1, 'houston': 0.98, 'austin': 1.05, 'san antonio': 0.92, 'el paso': 0.85, 'miami': 1.1, 'tampa': 1, 'orlando': 1, 'jacksonville': 0.95, 'atlanta': 1.02, 'charlotte': 1, 'raleigh': 1,
+    'chicago': 1.15, 'detroit': 0.95, 'minneapolis': 1.05, 'milwaukee': 1, 'indianapolis': 0.95, 'columbus': 0.97, 'cleveland': 0.95, 'cincinnati': 0.95, 'st. louis': 0.95, 'kansas city': 0.95,
+    'omaha': 0.93, 'des moines': 0.93, 'oklahoma city': 0.88, 'tulsa': 0.88, 'louisville': 0.9, 'nashville': 1, 'memphis': 0.88, 'new orleans': 0.95, 'birmingham': 0.92, 'pittsburgh': 0.97,
+    'philadelphia': 1.1, 'boston': 1.25, 'hartford': 1.05, 'providence': 1.05, 'baltimore': 1.05, 'washington': 1.15, 'richmond': 0.97, 'virginia beach': 0.97, 'buffalo': 0.95, 'rochester': 0.95,
+    'charleston': 1, 'columbia': 0.93, 'greenville': 0.93, 'albuquerque': 0.9, 'honolulu': 1.4 };
+
+  /* ---------- Read the link ---------- */
+  var q = new URLSearchParams(window.location.search);
+  function clean(s, n) { return String(s == null ? '' : s).replace(/\s+/g, ' ').trim().slice(0, n); }
+  function $(id) { return document.getElementById(id); }
+
+  var name = clean(q.get('name'), 80) || 'Your Company';
+  var city = clean(q.get('city'), 60) || 'Your Area';
+  var cityKey = city.toLowerCase();
+  var embed = q.get('demo') === '0';
+  var cc = clean(q.get('cc') || q.get('country'), 4).toLowerCase();
+  var isUS = cc === 'us' || (cc !== 'uk' && cc !== 'gb' && cityKey !== 'birmingham' && Object.prototype.hasOwnProperty.call(US_CITY, cityKey));
+
+  function resolveNiche(raw) {
+    var s = String(raw || '').toLowerCase().replace(/[^a-z]/g, '');
+    var map = { builder: 'builder', builders: 'builder', building: 'builder', driveways: 'driveways', driveway: 'driveways', drivewaysbuilding: 'combo',
+      plumber: 'plumber', plumbing: 'plumber', heatingengineer: 'heatingengineer', heating: 'heatingengineer', electrician: 'electrician', electrical: 'electrician',
+      roofer: 'roofer', roofing: 'roofer', carpenter: 'carpenter', carpentry: 'carpenter', joiner: 'carpenter', plasterer: 'plasterer', plastering: 'plasterer',
+      painter: 'painter', painting: 'painter', decorator: 'painter', tiler: 'tiler', tiling: 'tiler', hvac: 'hvac', aircon: 'hvac', glaziery: 'glaziery', glazing: 'glaziery', windows: 'glaziery' };
+    return map[s] || 'builder';
+  }
+  var nicheKey = resolveNiche(q.get('niche'));
+  var N;
+  if (nicheKey === 'combo') {
+    N = {}; var b = NICHES.builder; for (var k in b) { N[k] = b[k]; }
+    N.label = 'Driveways & Building'; N.emoji = '🏗️'; N.accent = '#fb923c'; N.headline = 'Get Your Instant Driveway & Building Estimate';
+    N.sub = 'Driveways, patios, extensions and building work. Pick the job for a guide price.';
+    N.includes = ['Labour and materials', 'Ground preparation where needed', 'Waste removal'];
+    N.services = NICHES.driveways.services.concat(NICHES.builder.services);
+  } else { N = NICHES[nicheKey]; }
+
+  /* Services from the contractor's own website (?services=a,b,c) - otherwise the trade's standard six */
+  function findService(n) {
+    n = n.toLowerCase();
+    for (var i = 0; i < N.services.length; i++) { if (N.services[i][0].toLowerCase() === n) { return N.services[i]; } }
+    return null;
+  }
+  var matched = [];
+  (q.get('services') || '').split(',').forEach(function (s) {
+    var f = findService(clean(s, 60));
+    if (f && matched.indexOf(f) === -1) { matched.push(f); }
+  });
+  var fromSite = matched.length >= 3;
+  var shown;
+  if (fromSite) { shown = matched.slice(0, 6); }
+  else if (nicheKey === 'combo') { shown = ['Resin Driveways', 'Block Paving', 'Patio & Landscaping', 'House Extension', 'Loft Conversion', 'Brickwork & Repairs'].map(findService); }
+  else { shown = N.services.slice(0, 6); }
+
+  var override = parseFloat(q.get('mult'));
+  var cityMult = (override >= 0.5 && override <= 2) ? override : ((isUS ? US_CITY : UK_CITY)[cityKey] || 1);
+
+  /* ---------- State + maths ---------- */
+  var cur = isUS ? '$' : '£';
+  var rate = isUS ? USD_RATE : 1;
+  var st = { svc: 0, size: 1, urg: 0 };
+
+  function money(n) { return cur + Math.round(n).toLocaleString(isUS ? 'en-US' : 'en-GB'); }
+  function nice(n) { var step = n < 1000 ? 10 : (n < 10000 ? 50 : 100); return Math.round(n / step) * step; }
+  function pct(m) { var p = Math.round((m - 1) * 100); return p === 0 ? 'Standard rate' : (p > 0 ? '+' + p + '%' : '−' + Math.abs(p) + '%'); }
+
+  function compute() {
+    var base = shown[st.svc][1] * rate * SIZE_MULT[st.size];
+    var local = base * cityMult;
+    var u = URGENCY[st.urg];
+    var callout = u.callout ? N.callout * rate : 0;
+    var total = local * u.mult + callout;
+    return { base: base, total: total, low: nice(total * 0.9), high: nice(total * 1.2), callout: callout, u: u };
+  }
+
+  function row(label, value) {
+    var d = document.createElement('div'); d.className = 'row';
+    var a = document.createElement('span'); a.textContent = label;
+    var b = document.createElement('b'); b.textContent = value;
+    d.appendChild(a); d.appendChild(b); return d;
+  }
+
+  function render() {
+    var r = compute();
+    var svc = shown[st.svc][0];
+    $('price').textContent = money(r.low) + ' – ' + money(r.high);
+    $('priceFor').textContent = svc + ' in ' + city;
+    var rows = $('rows'); rows.textContent = '';
+    rows.appendChild(row(svc + ' · ' + N.sizes[st.size], money(nice(r.base))));
+    rows.appendChild(row(city + ' local rates', pct(cityMult)));
+    var urgTxt = r.u.mult === 1 ? 'Included' : '+' + Math.round((r.u.mult - 1) * 100) + '%' + (r.callout ? ' + ' + money(r.callout) + ' call-out' : '');
+    rows.appendChild(row('Timing: ' + r.u.label, urgTxt));
+    var segs = $('sizeSeg').children; for (var i = 0; i < segs.length; i++) { segs[i].setAttribute('aria-pressed', i === st.size ? 'true' : 'false'); }
+    var us = $('urgSeg').children; for (var j = 0; j < us.length; j++) { us[j].setAttribute('aria-pressed', j === st.urg ? 'true' : 'false'); }
+  }
+
+  /* ---------- Stripe link carrying the contractor's details to n8n ---------- */
+  function b64url(s) { return btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+  function stripeNiche() {
+    if (nicheKey !== 'combo') { return nicheKey; }
+    var dn = 0, bn = 0;
+    shown.forEach(function (s) {
+      if (NICHES.driveways.services.some(function (x) { return x[0] === s[0]; })) { dn++; } else { bn++; }
+    });
+    return (fromSite && bn > dn) ? 'builder' : 'driveways';
+  }
+  function stripeUrl() {
+    var key = stripeNiche();
+    var list = NICHES[key].services.map(function (s) { return s[0]; });
+    var idx = [];
+    if (fromSite) { shown.forEach(function (s) { var i = list.indexOf(s[0]); if (i >= 0) { idx.push(i); } }); }
+    var arr = [clean(name, 40), clean(city, 30), key, Math.round(cityMult * 100) / 100].concat(idx);
+    var ref = b64url(JSON.stringify(arr));
+    if (ref.length > 190) { arr[0] = clean(name, 18); ref = b64url(JSON.stringify(arr)); }
+    return STRIPE_LINK + '?client_reference_id=' + ref;
+  }
+
+  /* ---------- Build the page ---------- */
+  function build() {
+    document.title = name + ' – Instant Quote Calculator';
+    document.documentElement.style.setProperty('--accent', N.accent);
+    $('brand').textContent = name;
+    $('pill').textContent = city + ' · ' + N.label;
+    $('emoji').textContent = N.emoji;
+    $('headline').textContent = N.headline;
+    $('sub').textContent = N.sub;
+    $('sizeTitle').textContent = N.sizeTitle;
+
+    var sel = $('service');
+    shown.forEach(function (s, i) { var o = document.createElement('option'); o.value = i; o.textContent = s[0]; sel.appendChild(o); });
+    sel.addEventListener('change', function () { st.svc = parseInt(sel.value, 10); render(); });
+
+    N.sizes.forEach(function (label, i) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+      b.addEventListener('click', function () { st.size = i; render(); }); $('sizeSeg').appendChild(b);
+    });
+    URGENCY.forEach(function (u, i) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = u.label;
+      b.addEventListener('click', function () { st.urg = i; render(); }); $('urgSeg').appendChild(b);
+    });
+    var incl = $('incl'); N.includes.forEach(function (t) { var li = document.createElement('li'); li.textContent = t; incl.appendChild(li); });
+
+    if (embed) {
+      $('fine').textContent = 'Guide price only. ' + name + ' will confirm an exact quote once they have seen the job.';
+      if (LEAD_WEBHOOK) {
+        $('cta').addEventListener('click', function () { $('leadCard').hidden = false; $('leadCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+        $('leadSub').textContent = 'Tell ' + name + ' where to reach you and they will confirm your quote.';
+        $('lPostLab').textContent = isUS ? 'ZIP code' : 'Postcode';
+      } else { $('cta').hidden = true; }
+    } else {
+      $('demoBar').hidden = false;
+      $('demoLabel').textContent = 'LIVE DEMO · your preview';
+      $('fine').textContent = 'This is the exact calculator your customers would see. Prices are indicative until calibrated to your real rates.';
+      $('pitch').hidden = false;
+      $('pitchH').textContent = 'Want this on ' + name + "'s website?";
+      $('pitchP').textContent = 'Calibrated to your services' + (fromSite ? ' (' + shown.slice(0, 3).map(function (s) { return s[0]; }).join(', ') + (shown.length > 3 ? ' and more' : '') + ')' : '') + ' and priced for ' + city + '. One line of code, or we install it for you.';
+      ['cta', 'demoAdd', 'pitchBtn'].forEach(function (id) { $(id).addEventListener('click', openModal); });
+    }
+    render();
+  }
+
+  function openModal() {
+    $('mTitle').textContent = 'Put this calculator on ' + name + "'s website";
+    $('mLead').textContent = 'This is exactly what your customers would see, with an instant price for the jobs you actually do.';
+    var list = $('mList'); list.textContent = '';
+    var bullets = [
+      fromSite ? 'Matched to your services: ' + shown.slice(0, 3).map(function (s) { return s[0]; }).join(', ') + (shown.length > 3 ? ' + ' + (shown.length - 3) + ' more' : '') : 'Built for ' + N.label + ' businesses',
+      'Priced for ' + city + ' and calibrated to your rates',
+      'One line of code for your site, or free done-for-you installation'
+    ];
+    bullets.forEach(function (t) { var li = document.createElement('li'); li.textContent = t; list.appendChild(li); });
+    $('mPrice').textContent = '';
+    $('mPrice').appendChild(document.createTextNode(SETUP_PRICE_TEXT + ' '));
+    if (isUS) { var sm = document.createElement('small'); sm.textContent = SETUP_PRICE_USD; $('mPrice').appendChild(sm); }
+    $('mBuy').href = stripeUrl();
+    $('modal').hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() { $('modal').hidden = true; document.body.style.overflow = ''; }
+  $('mClose').addEventListener('click', closeModal);
+  $('modal').addEventListener('click', function (e) { if (e.target === $('modal')) { closeModal(); } });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeModal(); } });
+
+  /* ---------- Homeowner request form (embed mode, needs LEAD_WEBHOOK) ---------- */
+  $('leadForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var msg = $('lMsg');
+    if (!$('lName').value.trim() || !$('lPhone').value.trim()) { msg.textContent = 'Please add your name and phone number.'; return; }
+    var r = compute();
+    var payload = {
+      contractor: { name: name, city: city, niche: stripeNiche() },
+      lead: { name: $('lName').value.trim(), phone: $('lPhone').value.trim(), email: $('lEmail').value.trim(), postcode: $('lPost').value.trim(), notes: $('lNotes').value.trim() },
+      estimate: { service: shown[st.svc][0], size: N.sizes[st.size], timing: r.u.label, low: r.low, high: r.high, currency: cur }
+    };
+    $('lSubmit').disabled = true; msg.textContent = 'Sending…';
+    fetch(LEAD_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function (res) { if (!res.ok) { throw new Error('bad'); } msg.textContent = 'Thanks! ' + name + ' will be in touch shortly.'; $('leadForm').reset(); })
+      .catch(function () { msg.textContent = 'Sorry, that did not send. Please try again.'; })
+      .then(function () { $('lSubmit').disabled = false; });
+  });
+
+  build();
+})();
+</script>
 </body>
 </html>
