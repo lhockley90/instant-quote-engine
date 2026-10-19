@@ -158,6 +158,22 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
   var SETUP_PRICE_USD  = '≈ $390/mo';     // shown to US contractors only
   var LEAD_WEBHOOK = '';                  // optional: n8n webhook URL that receives homeowner requests (embed mode)
   var USD_RATE = 1.45;                    // US prices = UK base price x this
+  /* Country -> [currency symbol, number locale, factor applied to the UK (GBP) base prices, postcode label]. Rough price levels: calibrate per customer. */
+  var COUNTRY = {
+    gb: ['£', 'en-GB', 1, 'Postcode'], us: ['$', 'en-US', USD_RATE, 'ZIP code'], ie: ['€', 'en-IE', 1.15, 'Eircode'], ca: ['C$', 'en-CA', 1.7, 'Postal code'],
+    au: ['A$', 'en-AU', 2, 'Postcode'], nz: ['NZ$', 'en-NZ', 2.1, 'Postcode'], za: ['R', 'en-ZA', 8, 'Postal code'], de: ['€', 'de-DE', 1.2, 'Postcode'],
+    fr: ['€', 'fr-FR', 1.1, 'Postcode'], es: ['€', 'es-ES', 0.95, 'Postcode'], pt: ['€', 'pt-PT', 0.9, 'Postcode'], it: ['€', 'it-IT', 1, 'Postcode'],
+    nl: ['€', 'nl-NL', 1.2, 'Postcode'], be: ['€', 'nl-BE', 1.15, 'Postcode'], ch: ['CHF ', 'de-CH', 1.5, 'Postcode'], at: ['€', 'de-AT', 1.15, 'Postcode'],
+    se: ['kr ', 'sv-SE', 13, 'Postcode'], no: ['kr ', 'nb-NO', 17, 'Postcode'], dk: ['kr ', 'da-DK', 10, 'Postcode'], fi: ['€', 'fi-FI', 1.15, 'Postcode'],
+    pl: ['zł ', 'pl-PL', 2.8, 'Postcode'], cz: ['Kč ', 'cs-CZ', 14, 'Postcode'], hu: ['Ft ', 'hu-HU', 180, 'Postcode'], ro: ['lei ', 'ro-RO', 2.3, 'Postcode'],
+    gr: ['€', 'el-GR', 0.85, 'Postcode'], tr: ['₺', 'tr-TR', 14, 'Postcode'], ae: ['AED ', 'en-AE', 4.2, 'Area'], sa: ['SAR ', 'en-SA', 4, 'Area'],
+    il: ['₪', 'he-IL', 4, 'Postcode'], qa: ['QAR ', 'en-QA', 4, 'Area'], eg: ['EGP ', 'en-EG', 18, 'Area'], ng: ['NGN ', 'en-NG', 300, 'Area'],
+    ke: ['KSh ', 'en-KE', 42, 'Area'], gh: ['GHS ', 'en-GH', 4.5, 'Area'], 'in': ['₹', 'en-IN', 23, 'PIN code'], pk: ['Rs ', 'en-PK', 74, 'Area'],
+    sg: ['S$', 'en-SG', 1.7, 'Postal code'], my: ['RM ', 'en-MY', 2.7, 'Postcode'], ph: ['₱', 'en-PH', 21, 'Area'], th: ['฿', 'th-TH', 18, 'Postcode'],
+    vn: ['₫', 'vi-VN', 9600, 'Area'], id: ['Rp ', 'id-ID', 6150, 'Postcode'], jp: ['¥', 'ja-JP', 170, 'Postcode'], kr: ['₩', 'ko-KR', 1575, 'Postcode'],
+    hk: ['HK$', 'en-HK', 10, 'Area'], br: ['R$', 'pt-BR', 2.6, 'CEP'], mx: ['MX$', 'es-MX', 9.6, 'Postcode'], cl: ['CLP ', 'es-CL', 600, 'Postcode'],
+    co: ['COP ', 'es-CO', 1750, 'Postcode'], pe: ['S/ ', 'es-PE', 1.9, 'Postcode'], other: ['$', 'en-US', 1, 'Postcode']
+  };
 
   /* ---------- Trades: same service ORDER as the Stripe decoder in n8n ---------- */
   var NICHES = {
@@ -255,8 +271,11 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
   var city = clean(q.get('city'), 60) || 'Your Area';
   var cityKey = city.toLowerCase();
   var embed = q.get('demo') === '0';
-  var cc = clean(q.get('cc') || q.get('country'), 4).toLowerCase();
-  var isUS = cc === 'us' || (cc !== 'uk' && cc !== 'gb' && cityKey !== 'birmingham' && Object.prototype.hasOwnProperty.call(US_CITY, cityKey));
+  var cc = clean(q.get('cc'), 4).toLowerCase();
+  if (cc === 'uk') { cc = 'gb'; }
+  if (!cc) { cc = (cityKey !== 'birmingham' && Object.prototype.hasOwnProperty.call(US_CITY, cityKey)) ? 'us' : 'gb'; }
+  var isUS = cc === 'us';
+  var C = COUNTRY[cc] || COUNTRY.other;
 
   function resolveNiche(raw) {
     var s = String(raw || '').toLowerCase().replace(/[^a-z]/g, '');
@@ -294,14 +313,14 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
   else { shown = N.services.slice(0, 6); }
 
   var override = parseFloat(q.get('mult'));
-  var cityMult = (override >= 0.5 && override <= 2) ? override : ((isUS ? US_CITY : UK_CITY)[cityKey] || 1);
+  var cityMult = (override >= 0.5 && override <= 2) ? override : ((cc === 'us' ? US_CITY : (cc === 'gb' ? UK_CITY : {}))[cityKey] || 1);
 
   /* ---------- State + maths ---------- */
-  var cur = isUS ? '$' : '£';
-  var rate = isUS ? USD_RATE : 1;
+  var cur = C[0];
+  var rate = C[2];
   var st = { svc: 0, size: 1, urg: 0 };
 
-  function money(n) { return cur + Math.round(n).toLocaleString(isUS ? 'en-US' : 'en-GB'); }
+  function money(n) { return cur + Math.round(n).toLocaleString(C[1]); }
   function nice(n) { var step = n < 1000 ? 10 : (n < 10000 ? 50 : 100); return Math.round(n / step) * step; }
   function pct(m) { var p = Math.round((m - 1) * 100); return p === 0 ? 'Standard rate' : (p > 0 ? '+' + p + '%' : '−' + Math.abs(p) + '%'); }
 
@@ -351,6 +370,7 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
     var idx = [];
     if (fromSite) { shown.forEach(function (s) { var i = list.indexOf(s[0]); if (i >= 0) { idx.push(i); } }); }
     var arr = [clean(name, 40), clean(city, 30), key, Math.round(cityMult * 100) / 100].concat(idx);
+    if (cc !== 'gb') { arr.push('cc:' + cc); }
     var ref = b64url(JSON.stringify(arr));
     if (ref.length > 190) { arr[0] = clean(name, 18); ref = b64url(JSON.stringify(arr)); }
     return STRIPE_LINK + '?client_reference_id=' + ref;
@@ -386,7 +406,7 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
       if (LEAD_WEBHOOK) {
         $('cta').addEventListener('click', function () { $('leadCard').hidden = false; $('leadCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
         $('leadSub').textContent = 'Tell ' + name + ' where to reach you and they will confirm your quote.';
-        $('lPostLab').textContent = isUS ? 'ZIP code' : 'Postcode';
+        $('lPostLab').textContent = C[3];
       } else { $('cta').hidden = true; }
     } else {
       $('demoBar').hidden = false;
