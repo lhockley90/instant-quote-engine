@@ -8,6 +8,7 @@ BASE = os.environ.get('SITE_BASE', 'https://aiengineered.co.uk').rstrip('/')
 CONTACT_EMAIL = os.environ.get('CONTACT_EMAIL', '')   # shown once hello@aiengineered.co.uk forwards to Liam's inbox
 PORTAL = 'https://billing.stripe.com/p/login/dRm3cwd5bfqIaB6cCVbAs00'
 INDEXNOW_KEY = '7f3c9a1e5b8d4c2fa6e1d0b9c8a7f6e5'
+BING_VERIFY = os.environ.get('BING_VERIFY', '')   # msvalidate.01 content value from Bing Webmaster Tools
 TODAY = datetime.date.today().isoformat()
 TODAY_LONG = datetime.date.today().strftime('%-d %B %Y')
 OUT = 'out'
@@ -77,7 +78,7 @@ def page(path, title, desc, body, schema=None, noindex=False, og_title=None):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{e(title)}</title>
+{f'<meta name="msvalidate.01" content="{e(BING_VERIFY)}">' + chr(10) if BING_VERIFY and path == '/' else ''}<title>{e(title)}</title>
 <meta name="description" content="{e(desc)}">
 <meta name="robots" content="{'noindex' if noindex else 'index, follow, max-image-preview:large, max-snippet:-1'}">
 <link rel="canonical" href="{url}">
