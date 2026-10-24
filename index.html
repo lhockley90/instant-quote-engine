@@ -55,9 +55,12 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
 .pitch p{margin:0;color:var(--muted);line-height:1.55;font-size:15px}
 
 .form label{display:block;margin:12px 0 6px;font-size:14px;font-weight:600}
-.form input,.form textarea{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:16px}
+.form input,.form textarea,.form select{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:16px}
 .form textarea{min-height:80px;resize:vertical}
-.msg{margin-top:12px;text-align:center;font-size:14px}
+.msg{margin-top:12px;text-align:center;font-size:14px;line-height:1.5}
+.msg a{color:var(--accent);font-weight:700}
+.powered{margin:18px 0 0;text-align:center;font-size:12px;color:var(--muted)}
+.powered a{color:var(--muted)}
 
 .modal{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(3,7,15,.72);padding:0}
 .sheet{width:100%;max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:24px 24px 0 0;padding:26px 20px calc(26px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto;position:relative}
@@ -69,7 +72,7 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
 .sheet li{padding:7px 0 7px 26px;position:relative;line-height:1.4}
 .sheet li:before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:800}
 .bigprice{font-size:34px;font-weight:800;color:var(--accent)}
-.bigprice small{font-size:15px;color:var(--muted);font-weight:600}
+.bigprice small{display:block;margin-top:2px;font-size:15px;color:var(--muted);font-weight:600}
 .secure{margin:10px 0 0;text-align:center;font-size:12px;color:var(--muted)}
 @media(max-width:420px){h1{font-size:25px}.price{font-size:36px}.brand{font-size:21px}}
 </style>
@@ -119,13 +122,17 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
     <form id="leadForm" novalidate>
       <label for="lName">Your name</label><input id="lName" autocomplete="name" required>
       <label for="lPhone">Phone</label><input id="lPhone" type="tel" autocomplete="tel" required>
-      <label for="lEmail">Email</label><input id="lEmail" type="email" autocomplete="email">
+      <label for="lEmail">Email</label><input id="lEmail" type="email" autocomplete="email" required>
       <label for="lPost" id="lPostLab">Postcode</label><input id="lPost" autocomplete="postal-code">
+      <label for="lPref">Best way to reach you</label>
+      <select id="lPref"><option>Phone call</option><option>WhatsApp</option><option>Text message</option><option>Email</option></select>
       <label for="lNotes">Anything else we should know?</label><textarea id="lNotes"></textarea>
+      <input id="lHp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
       <button class="btn" type="submit" id="lSubmit">Send my request</button>
-      <div class="msg" id="lMsg"></div>
+      <div class="msg" id="lMsg" role="status" aria-live="polite"></div>
     </form>
   </section>
+  <p class="powered" id="powered" hidden>Instant quotes by <a href="https://aiengineered-hone9.vercel.app/?utm_source=calculator&amp;utm_medium=embed" target="_blank" rel="noopener">AiEngineered</a></p>
 
   <section class="pitch" id="pitch" hidden>
     <h2 id="pitchH"></h2>
@@ -142,7 +149,7 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
     <ul id="mList"></ul>
     <div class="bigprice" id="mPrice"></div>
     <a class="btn" id="mBuy" href="#" rel="noopener">Claim &amp; Activate Online Now →</a>
-    <div class="secure">🔒 Secure checkout powered by Stripe</div>
+    <div class="secure" id="mSecure">🔒 Secure checkout powered by Stripe</div>
   </div>
 </div>
 
@@ -153,10 +160,11 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
   'use strict';
 
   /* ---------- Settings you may want to change ---------- */
-  var STRIPE_LINK = 'https://buy.stripe.com/eVq6oIe9f6UcgZu46pbAs01';
-  var SETUP_PRICE_TEXT = '£297/mo';       // what the Stripe link charges
-  var SETUP_PRICE_USD  = '≈ $390/mo';     // shown to US contractors only
-  var LEAD_WEBHOOK = '';                  // optional: n8n webhook URL that receives homeowner requests (embed mode)
+  // AiEngineered payment link: £197 setup + £49/month (same link as the clinic calculator; n8n routes by niche)
+  var STRIPE_LINK = 'https://buy.stripe.com/3cIeVe2qx3I0aB646pbAs09';
+  var SETUP_PRICE_TEXT = '£197 setup';      // what the Stripe link charges today, plus the first month
+  var MONTHLY_TEXT = '+ £49/month';
+  var LEAD_WEBHOOK = 'https://uk-trade-engine.app.n8n.cloud/webhook/clinic-lead'; // n8n lead router: emails each request to the paid contractor (cemail)
   var USD_RATE = 1.45;                    // US prices = UK base price x this
   /* Country -> [currency symbol, number locale, factor applied to the UK (GBP) base prices, postcode label]. Rough price levels: calibrate per customer. */
   var COUNTRY = {
@@ -271,6 +279,8 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
   var city = clean(q.get('city'), 60) || 'Your Area';
   var cityKey = city.toLowerCase();
   var embed = q.get('demo') === '0';
+  var cemailRaw = clean(q.get('cemail'), 120).replace(/ /g, '+').toLowerCase();
+  var cemail = /^[a-z0-9._%+'-]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/.test(cemailRaw) ? cemailRaw : '';
   var cc = clean(q.get('cc'), 4).toLowerCase();
   if (cc === 'uk') { cc = 'gb'; }
   if (!cc) { cc = (cityKey !== 'birmingham' && Object.prototype.hasOwnProperty.call(US_CITY, cityKey)) ? 'us' : 'gb'; }
@@ -403,7 +413,8 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
 
     if (embed) {
       $('fine').textContent = 'Guide price only. ' + name + ' will confirm an exact quote once they have seen the job.';
-      if (LEAD_WEBHOOK) {
+      $('powered').hidden = false;
+      if (LEAD_WEBHOOK && cemail) {
         $('cta').addEventListener('click', function () { $('leadCard').hidden = false; $('leadCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
         $('leadSub').textContent = 'Tell ' + name + ' where to reach you and they will confirm your quote.';
         $('lPostLab').textContent = C[3];
@@ -427,12 +438,14 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
     var bullets = [
       fromSite ? 'Matched to your services: ' + shown.slice(0, 3).map(function (s) { return s[0]; }).join(', ') + (shown.length > 3 ? ' + ' + (shown.length - 3) + ' more' : '') : 'Built for ' + N.label + ' businesses',
       'Priced for ' + city + ' and calibrated to your rates',
+      'Every quote request emailed straight to you, with one-tap call and WhatsApp',
       'One line of code for your site, or free done-for-you installation'
     ];
     bullets.forEach(function (t) { var li = document.createElement('li'); li.textContent = t; list.appendChild(li); });
     $('mPrice').textContent = '';
     $('mPrice').appendChild(document.createTextNode(SETUP_PRICE_TEXT + ' '));
-    if (isUS) { var sm = document.createElement('small'); sm.textContent = SETUP_PRICE_USD; $('mPrice').appendChild(sm); }
+    var sm = document.createElement('small'); sm.textContent = MONTHLY_TEXT + ' · cancel any time'; $('mPrice').appendChild(sm);
+    $('mSecure').textContent = '🔒 Secure checkout by Stripe. ' + (cc === 'gb' ? '' : 'Prices are in GBP; you see the exact amount before you pay. ') + 'The £49 a month keeps it online and your requests coming in.';
     $('mBuy').href = stripeUrl();
     $('modal').hidden = false;
     document.body.style.overflow = 'hidden';
@@ -443,20 +456,46 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeModal(); } });
 
   /* ---------- Homeowner request form (embed mode, needs LEAD_WEBHOOK) ---------- */
+  /* Same format as the clinic page, so the one n8n lead router handles both. The router only emails
+     businesses with an active plan: a 403 means this business isn't taking online requests right now. */
+  var CURRENCY = { gb: 'GBP', us: 'USD', ie: 'EUR', ca: 'CAD', au: 'AUD', nz: 'NZD', de: 'EUR', fr: 'EUR', es: 'EUR', pt: 'EUR', it: 'EUR', nl: 'EUR', be: 'EUR', at: 'EUR', fi: 'EUR', gr: 'EUR' };
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  function mailtoFallback(p) {
+    var lines = ['Hi ' + name + ',', '', 'I would like a quote for: ' + p.estimate.treatment + ' (' + p.estimate.size + ')',
+      'Guide price shown: ' + money(p.estimate.low) + ' – ' + money(p.estimate.high), '',
+      'Name: ' + p.client.name, 'Phone: ' + p.client.phone, 'Email: ' + p.client.email];
+    if (p.client.notes) { lines.push('', p.client.notes); }
+    return 'mailto:' + cemail + '?subject=' + encodeURIComponent('Quote request: ' + p.estimate.treatment) + '&body=' + encodeURIComponent(lines.join('\n'));
+  }
   $('leadForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var msg = $('lMsg');
-    if (!$('lName').value.trim() || !$('lPhone').value.trim()) { msg.textContent = 'Please add your name and phone number.'; return; }
+    if ($('lHp').value) { msg.textContent = 'Thanks! ' + name + ' will be in touch shortly.'; return; } // bot trap
+    var nm = $('lName').value.trim(), ph = $('lPhone').value.trim(), em = $('lEmail').value.trim();
+    if (nm.length < 2 || ph.replace(/\D/g, '').length < 7) { msg.textContent = 'Please add your name and phone number.'; return; }
+    if (!EMAIL_RE.test(em)) { msg.textContent = 'Please add a valid email address.'; return; }
     var r = compute();
+    var notes = [$('lPost').value.trim() ? C[3] + ': ' + $('lPost').value.trim() : '', $('lNotes').value.trim()].filter(Boolean).join('\n');
     var payload = {
-      contractor: { name: name, city: city, niche: stripeNiche() },
-      lead: { name: $('lName').value.trim(), phone: $('lPhone').value.trim(), email: $('lEmail').value.trim(), postcode: $('lPost').value.trim(), notes: $('lNotes').value.trim() },
-      estimate: { service: shown[st.svc][0], size: N.sizes[st.size], timing: r.u.label, low: r.low, high: r.high, currency: cur }
+      clinic: { name: name, city: city, niche: stripeNiche(), email: cemail },
+      client: { name: nm, phone: ph, email: em, notes: notes, preferred_contact: $('lPref').value },
+      estimate: { treatment: shown[st.svc][0], size: N.sizes[st.size] + ' · ' + r.u.label, low: r.low, high: r.high, currency: CURRENCY[cc] || 'GBP' },
+      meta: { country: cc === 'gb' ? 'uk' : cc, page: window.location.origin + window.location.pathname, submitted_at: new Date().toISOString() }
     };
     $('lSubmit').disabled = true; msg.textContent = 'Sending…';
-    fetch(LEAD_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-      .then(function (res) { if (!res.ok) { throw new Error('bad'); } msg.textContent = 'Thanks! ' + name + ' will be in touch shortly.'; $('leadForm').reset(); })
-      .catch(function () { msg.textContent = 'Sorry, that did not send. Please try again.'; })
+    fetch(LEAD_WEBHOOK, { method: 'POST', mode: 'cors', credentials: 'omit', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function (res) {
+        if (res.ok) { msg.textContent = 'Thanks, ' + nm.split(' ')[0] + '! ' + name + ' has your request and will be in touch shortly.'; $('leadForm').reset(); return; }
+        if (res.status === 403) { msg.textContent = name + ' isn’t taking online requests at the moment. Please contact them directly.'; $('lSubmit').hidden = true; return; }
+        if (res.status === 400) { msg.textContent = 'Please check your details and try again.'; return; }
+        throw new Error('router ' + res.status);
+      })
+      .catch(function () {
+        msg.textContent = '';
+        msg.appendChild(document.createTextNode('Sorry, that didn’t send. '));
+        var a = document.createElement('a'); a.href = mailtoFallback(payload); a.textContent = 'Email your request to ' + name + ' instead';
+        msg.appendChild(a);
+      })
       .then(function () { $('lSubmit').disabled = false; });
   });
 
