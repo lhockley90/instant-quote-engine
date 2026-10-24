@@ -1,0 +1,44 @@
+# AiEngineered
+
+> AiEngineered builds instant quote calculators for trades, clinics, salons and other local businesses in the UK, Ireland and the US. Customers pick a job, see a guide price for the area, and send their details to the business by email. Price: £197 setup, then £49 a month, cancel any time. Run by Liam Hockley, a sole trader in the United Kingdom.
+
+## How it works
+- A business builds a free preview with its name, town and type of business.
+- If they like it, they pay £197 setup plus £49 a month through Stripe and receive their calculator link and website code by email within minutes.
+- Their customers choose a job and size, see a guide price range, and send a request. The request is emailed to the business with one-tap call and WhatsApp buttons.
+- Clinics, salons and similar businesses edit their own prices from a private link; trades send their rates and AiEngineered updates them.
+- Cancelling is self-serve through Stripe; the plan runs to the end of the paid month, then requests stop.
+
+## Key pages
+- [Home](https://aiengineered-hone9.vercel.app/)
+- [Pricing](https://aiengineered-hone9.vercel.app/pricing/): £197 setup, £49 a month
+- [FAQ](https://aiengineered-hone9.vercel.app/faq/)
+- [All calculators](https://aiengineered-hone9.vercel.app/instant-quote-calculator/)
+
+## Calculators by business type
+- [Instant quote calculator for roofers](https://aiengineered-hone9.vercel.app/instant-quote-calculator/roofers/): New roof, Flat roofing, Roof repairs, Fascias & soffits, Guttering, Chimney repairs
+- [Instant quote calculator for plumbers](https://aiengineered-hone9.vercel.app/instant-quote-calculator/plumbers/): Boiler installation, Bathroom fitting, Leak & pipe repairs, Power flush, Hot water cylinder, Radiator replacement
+- [Instant quote calculator for electricians](https://aiengineered-hone9.vercel.app/instant-quote-calculator/electricians/): Full rewire, Consumer unit upgrade, EV charger installation, EICR testing, Lighting & sockets, Outdoor lighting
+- [Instant quote calculator for builders](https://aiengineered-hone9.vercel.app/instant-quote-calculator/builders/): House extension, Loft conversion, Garage conversion, Brickwork & repairs, Structural alterations, Full renovation
+- [Instant quote calculator for driveway installers](https://aiengineered-hone9.vercel.app/instant-quote-calculator/driveway-installers/): Resin driveways, Block paving, Tarmac driveway, Patio & landscaping, Dropped kerb, Walls & fencing
+- [Instant quote calculator for heating engineers](https://aiengineered-hone9.vercel.app/instant-quote-calculator/heating-engineers/): Boiler installation, Boiler servicing, Central heating, Underfloor heating, Power flush, Smart heating controls
+- [Instant quote calculator for carpenters and joiners](https://aiengineered-hone9.vercel.app/instant-quote-calculator/carpenters-joiners/): Fitted wardrobes, Kitchen fitting, Doors & skirting, Staircase renovation, Decking & pergolas, Bespoke shelving
+- [Instant quote calculator for plasterers](https://aiengineered-hone9.vercel.app/instant-quote-calculator/plasterers/): Skimming, Full re-plaster, Plasterboarding, External rendering, Coving & cornice, Artex removal
+- [Instant quote calculator for painters and decorators](https://aiengineered-hone9.vercel.app/instant-quote-calculator/painters-decorators/): Interior painting, Exterior painting, Wallpapering, Woodwork & doors, Kitchen respray, Fence & shed painting
+- [Instant quote calculator for tilers](https://aiengineered-hone9.vercel.app/instant-quote-calculator/tilers/): Bathroom tiling, Kitchen splashback, Floor tiling, Wet room tanking, Patio tiling, Feature wall tiling
+- [Instant quote calculator for air conditioning and heat pump installers](https://aiengineered-hone9.vercel.app/instant-quote-calculator/air-conditioning-installers/): Air conditioning, Heat pumps, Ventilation & extraction, MVHR systems, AC servicing, Commercial maintenance
+- [Instant quote calculator for window and door fitters](https://aiengineered-hone9.vercel.app/instant-quote-calculator/window-door-fitters/): uPVC windows, Bi-Fold doors, Composite doors, Misted unit repairs, Roof windows, Sash window restoration
+- [Instant quote calculator for aesthetics clinics](https://aiengineered-hone9.vercel.app/instant-quote-calculator/aesthetics-clinics/): Anti-wrinkle injections (3 areas), Lip & dermal fillers, Profhilo / skin boosters, Laser hair removal course, Microneedling & exosomes, Hydrafacial Platinum
+- [Instant quote calculator for tattoo studios](https://aiengineered-hone9.vercel.app/instant-quote-calculator/tattoo-studios/): Fine line / minimalist piece, Black & grey realism, Half-sleeve / large custom, Full-day studio sitting, Cover-up / rework, Portrait / detailed piece
+- [Instant quote calculator for cosmetic dentists](https://aiengineered-hone9.vercel.app/instant-quote-calculator/cosmetic-dentists/): Invisalign clear aligners, Composite bonding, Porcelain veneers, Professional whitening, Dental implants, Full smile makeover
+- [Instant quote calculator for cosmetic surgery clinics](https://aiengineered-hone9.vercel.app/instant-quote-calculator/cosmetic-surgery-clinics/): Rhinoplasty, Breast augmentation, Liposuction / Vaser lipo, Tummy tuck, Eyelid surgery, Hair transplant (FUE / DHI)
+- [Instant quote calculator for wedding photographers](https://aiengineered-hone9.vercel.app/instant-quote-calculator/wedding-photographers/): Wedding day photography, Photography + second shooter, Photo + videography, Elopement / registry office, Engagement shoot, Destination wedding
+- [Instant quote calculator for wedding florists](https://aiengineered-hone9.vercel.app/instant-quote-calculator/wedding-florists/): Bridal bouquet, Bridal party bouquets & buttonholes, Ceremony arch & aisle, Table centrepieces, Full wedding flowers, Event & venue styling
+- [Instant quote calculator for dog groomers](https://aiengineered-hone9.vercel.app/instant-quote-calculator/dog-groomers/): Full groom, Bath, brush & tidy, Puppy intro groom, Hand stripping, De-shedding treatment, Nails, ears & hygiene tidy
+- [Instant quote calculator for hair salons](https://aiengineered-hone9.vercel.app/instant-quote-calculator/hair-salons/): Cut & blow dry, Balayage / ombré, Full head highlights, Root colour / tint, Keratin smoothing, Hair extensions
+- [Instant quote calculator for cake makers](https://aiengineered-hone9.vercel.app/instant-quote-calculator/cake-makers/): Wedding cake, Birthday / celebration cake, Cupcakes, Dessert table, Sculpted / novelty cake, Christening / baby shower cake
+- [Instant quote calculator for newborn and family photographers](https://aiengineered-hone9.vercel.app/instant-quote-calculator/newborn-family-photographers/): Newborn shoot, Family shoot, Maternity shoot, Cake smash, Milestone / sitter shoot, Seasonal mini session
+
+## Contact
+- Email: L.hockley17121990@gmail.com
+- No calls needed; everything is handled online and by email.
