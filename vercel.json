@@ -35,30 +35,36 @@
  ],
  "redirects": [
   {
-   "source": "/_src/:path*",
-   "destination": "/",
-   "permanent": false
+   "source": "/(.*)",
+   "has": [
+    {
+     "type": "host",
+     "value": "aiengineered.vercel.app"
+    }
+   ],
+   "destination": "https://aiengineered.co.uk/$1",
+   "permanent": true
   },
   {
-   "source": "/:path*",
+   "source": "/(.*)",
    "has": [
     {
      "type": "host",
      "value": "aiengineered-hone9.vercel.app"
     }
    ],
-   "destination": "https://aiengineered.co.uk/:path*",
+   "destination": "https://aiengineered.co.uk/$1",
    "permanent": true
   },
   {
-   "source": "/:path*",
+   "source": "/(.*)",
    "has": [
     {
      "type": "host",
      "value": "aiengineered-git-website-hone9.vercel.app"
     }
    ],
-   "destination": "https://aiengineered.co.uk/:path*",
+   "destination": "https://aiengineered.co.uk/$1",
    "permanent": true
   }
  ]

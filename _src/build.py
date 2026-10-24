@@ -495,10 +495,10 @@ def build():
         llms.append(f'- [Instant quote calculator for {n["plural"]}]({BASE}/instant-quote-calculator/{n["slug"]}/): ' + ', '.join(j['name'] for j in n['jobs']))
     llms += ['', '## Contact', f'- Contact form: {BASE}/contact/'] + ([f'- Email: {CONTACT_EMAIL}'] if CONTACT_EMAIL else []) + ['- No calls needed; everything is handled online and by email.', '']
     open(os.path.join(OUT, 'llms.txt'), 'w', encoding='utf-8').write('\n'.join(llms))
-    redirects = [{"source": "/_src/:path*", "destination": "/", "permanent": False}]
+    redirects = []
     if os.environ.get('REDIRECT_VERCEL_HOST') == '1':
-        for h in ['aiengineered-hone9.vercel.app', 'aiengineered-git-website-hone9.vercel.app']:
-            redirects.append({"source": "/:path*", "has": [{"type": "host", "value": h}], "destination": BASE + "/:path*", "permanent": True})
+        for h in ['aiengineered.vercel.app', 'aiengineered-hone9.vercel.app', 'aiengineered-git-website-hone9.vercel.app']:
+            redirects.append({"source": "/(.*)", "has": [{"type": "host", "value": h}], "destination": BASE + "/$1", "permanent": True})
     open(os.path.join(OUT, 'vercel.json'), 'w').write(json.dumps({
         "cleanUrls": True, "trailingSlash": True,
         "headers": [{"source": "/assets/(.*)", "headers": [{"key": "Cache-Control", "value": "public, max-age=604800"}]},
