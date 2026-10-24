@@ -18,7 +18,13 @@ Allow: /
 User-agent: Claude-SearchBot
 Allow: /
 
+User-agent: Claude-User
+Allow: /
+
 User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
 Allow: /
 
 User-agent: Google-Extended
@@ -27,4 +33,10 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://aiengineered-hone9.vercel.app/sitemap.xml
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://aiengineered.co.uk/sitemap.xml

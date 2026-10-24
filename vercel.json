@@ -7,7 +7,7 @@
    "headers": [
     {
      "key": "Cache-Control",
-     "value": "public, max-age=86400"
+     "value": "public, max-age=604800"
     }
    ]
   },
@@ -21,6 +21,14 @@
     {
      "key": "Referrer-Policy",
      "value": "strict-origin-when-cross-origin"
+    },
+    {
+     "key": "Strict-Transport-Security",
+     "value": "max-age=63072000"
+    },
+    {
+     "key": "X-Frame-Options",
+     "value": "SAMEORIGIN"
     }
    ]
   }
@@ -30,6 +38,28 @@
    "source": "/_src/:path*",
    "destination": "/",
    "permanent": false
+  },
+  {
+   "source": "/:path*",
+   "has": [
+    {
+     "type": "host",
+     "value": "aiengineered-hone9.vercel.app"
+    }
+   ],
+   "destination": "https://aiengineered.co.uk/:path*",
+   "permanent": true
+  },
+  {
+   "source": "/:path*",
+   "has": [
+    {
+     "type": "host",
+     "value": "aiengineered-git-website-hone9.vercel.app"
+    }
+   ],
+   "destination": "https://aiengineered.co.uk/:path*",
+   "permanent": true
   }
  ]
 }
